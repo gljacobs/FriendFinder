@@ -242,7 +242,7 @@
             });
 
             $.post("/api/friends", input, function (data) {
-                $("#modalMatch").html(`<p>${result.name}</p>`)
+                $("#modalMatch").html(`<p>${result.name}</p> <img src="${result.image}" alt="Your Match's Img">`)
                 $("#myModal").modal("show");
             });
         });
