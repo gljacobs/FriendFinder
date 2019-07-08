@@ -201,8 +201,6 @@
         $("#submitSurvey").click(function (event) {
             event.preventDefault();
 
-            console.log("hii");
-
             var input = {
                 name: $("#name").val(),
                 image: $("#image").val(),
@@ -219,33 +217,46 @@
                     $("#q10").val()
                 ]
             };
-
+            var valid = (input.name && input.image);
             var match;
             var compareNum = 0;
             var resultNum = 100;
             var result;
 
-            $.get("/api/friends", function(data){
-                for (let i = 0; i < data.length; i++) {
-                    
-                    for (let j = 0; j < data[i].scores.length; j++) {
-                        compareNum += Math.abs(parseInt(data[i].scores[j]) - parseInt(input.scores[j]));
-                    }
-                    console.log(compareNum);
-                    
-                    if(compareNum < resultNum){
-                        result = data[i];
-                        resultNum = compareNum;
-                    }
-                    compareNum = 0;
+            for (let i = 0; i < input.scores.length; i++) {
+                if (input.scores[i] === "") {
+                    valid = false;
                 }
-            });
+            }
+            if (valid) {
+                $.get("/api/friends", function (data) {
+                    for (let i = 0; i < data.length; i++) {
 
-            $.post("/api/friends", input, function (data) {
-                $("#modalMatch").html(`<p>${result.name}</p> <img src="${result.image}" alt="Your Match's Img">`)
-                $("#myModal").modal("show");
-            });
+                        for (let j = 0; j < data[i].scores.length; j++) {
+                            compareNum += Math.abs(parseInt(data[i].scores[j]) - parseInt(input.scores[j]));
+                        }
+
+                        if (compareNum < resultNum) {
+                            result = data[i];
+                            resultNum = compareNum;
+                        }
+                        compareNum = 0;
+                    }
+                });
+
+                $.post("/api/friends", input, function (data) {
+                    $("#modalMatch").html(`<p>${result.name}</p> <img src="${result.image}" alt="Your Match's Img">`)
+                    $("#myModal").modal("show");
+                });
+            }
+            else {
+                alert("Please fill out the form and answer every question in order to submit.")
+            }
         });
+
+        $('#myModal').on('hidden.bs.modal', function () {
+            document.location.reload();
+        })
     </script>
 </body>
 
